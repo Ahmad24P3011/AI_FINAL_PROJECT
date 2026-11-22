@@ -1,4 +1,4 @@
-# Premier League Match Prediction (simple version)
+# Premier League Match Prediction 
 
 Predicts Premier League match results (home win / draw / away win) from team Elo ratings and recent goals, compares two models on the unseen 2025-26 season, simulates that season 100 times, and shows it all in a web app. AI Lab project.
 
