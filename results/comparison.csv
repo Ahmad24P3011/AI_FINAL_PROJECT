@@ -1,0 +1,4 @@
+model,accuracy,log_loss,draws_predicted,confusion_matrix
+Logistic Regression,0.4868421052631579,1.0282865464473403,0,"[[124, 0, 38], [62, 0, 42], [53, 0, 61]]"
+Random Forest,0.45789473684210524,1.1055851151975125,38,"[[113, 19, 30], [55, 12, 37], [58, 7, 49]]"
+Always home win,0.4263157894736842,,0,
