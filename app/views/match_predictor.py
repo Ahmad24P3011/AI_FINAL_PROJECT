@@ -14,8 +14,14 @@ def load_predictor():
     return Predictor()
 
 
-def pct(p):
-    return f"{p * 100:.0f}%"
+def pcts(p):
+    """Home/draw/away as whole percentages that always add up to 100. Rounding each value on its own can give 99 or 101,
+    so round all three down, then give the missing points to the values that were rounded down the most."""
+    raw = [v * 100 for v in p]
+    whole = [int(v) for v in raw]
+    for i in sorted(range(len(raw)), key=lambda i: raw[i] - whole[i], reverse=True)[:100 - sum(whole)]:
+        whole[i] += 1
+    return [f"{w}%" for w in whole]
 
 
 def matchup_card(home, away):
@@ -26,7 +32,7 @@ def matchup_card(home, away):
 
 
 def probability_tiles(p):
-    html(tile_row([tile(pct(value), label, color) for value, label, color in [(p[0], "Home win", GREEN), (p[1], "Draw", GREY), (p[2], "Away win", CYAN)]]))
+    html(tile_row([tile(text, label, color) for text, label, color in zip(pcts(p), ["Home win", "Draw", "Away win"], [GREEN, GREY, CYAN])]))
 
 
 def scoreboard(r):
@@ -37,7 +43,7 @@ def scoreboard(r):
 def comparison_table(r):
     body = ""
     for key, name in CLASSIFIERS.items():
-        cells = [pct(v) for v in r["probabilities"][key]]
+        cells = pcts(r["probabilities"][key])
         body += (f'<tr class="{"primary" if key == "logreg" else ""}"><td>{name}</td><td style="color:{GREEN}">{cells[0]}</td>'
                  f'<td style="color:{GREY}">{cells[1]}</td><td style="color:{CYAN}">{cells[2]}</td></tr>')
     html('<div class="table-wrap"><table class="pl-table"><tr><th>Model</th><th>P(Home)</th><th>P(Draw)</th><th>P(Away)</th></tr>' + body + '</table></div>')
@@ -57,7 +63,7 @@ def real_result_section(predictor, r):
          f'<small>Real full-time result, {date}: <b style="color:{colors[real["outcome"]]}">{names[real["outcome"]]}</b></small></div>')
     given = {"Logistic Regression (primary)": r["probabilities"]["logreg"], "Random Forest": r["probabilities"]["random_forest"]}
     st.caption("Chance each model gave to the outcome that really happened:")
-    tiles = [tile(pct(p[real["outcome"]]), f"{name}<br>top pick: {names[int(p.argmax())]}", colors[real["outcome"]], small=True) for name, p in given.items()]
+    tiles = [tile(pcts(p)[real["outcome"]], f"{name}<br>top pick: {names[int(p.argmax())]}", colors[real["outcome"]], small=True) for name, p in given.items()]
     html(tile_row(tiles, wrap=True))
     st.caption("Read this as a sanity check, not a test: the models here use each team's form at the END of 2025-26, which already includes "
                "this very match, and the real score is never an input to any model. The fair test of the models is the 2025-26 comparison table in the README.")
